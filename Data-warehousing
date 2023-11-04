@@ -1,0 +1,86 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyPukvMwx7mQIAkXMDPEBg+Z",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/Dm2998/Pandas_hive_DW/blob/main/Data-warehousing\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "id": "OKXMCTIWOQtq"
+      },
+      "outputs": [],
+      "source": [
+        "# Import the required libraries\n",
+        "from pyhive import hive\n",
+        "import os\n",
+        "from datetime import datetime as dt\n",
+        "\n",
+        "# Function to create a Hive connection\n",
+        "def getHiveConn(host, username, port=10000, schema=\"db_user1\"):\n",
+        "    return hive.connect(host=host, port=port, username=username, database=schema, auth=None)\n",
+        "\n",
+        "# Function to save customer feedback to Hive\n",
+        "def saveFeedbackHive(customer_id, feedback_message):\n",
+        "    # Generate a timestamp\n",
+        "    timestamp = dt.now()\n",
+        "\n",
+        "    # Define Hive connection details (modify as needed)\n",
+        "    hive_host = \"your-hive-server\"\n",
+        "    hive_username = \"your-username\"\n",
+        "    hive_schema = \"your-schema\"\n",
+        "\n",
+        "    # Create a Hive connection\n",
+        "    conn = getHiveConn(host=hive_host, username=hive_username, schema=hive_schema)\n",
+        "\n",
+        "    # Define the table name\n",
+        "    table_name = \"customer_feedback\"\n",
+        "\n",
+        "    # Prepare the data\n",
+        "    feedback_data = {\n",
+        "        'ts': timestamp,\n",
+        "        'customer_id': customer_id,\n",
+        "        'feedback': feedback_message\n",
+        "    }\n",
+        "\n",
+        "    # Save the data to Hive\n",
+        "    query = (\n",
+        "        f\"INSERT INTO {table_name} VALUES ('{feedback_data['ts']}', \"\n",
+        "        f\"'{feedback_data['customer_id']}', '{feedback_data['feedback']}')\"\n",
+        "    )\n",
+        "\n",
+        "    cur = conn.cursor()\n",
+        "    cur.execute(query)\n",
+        "    conn.commit()\n",
+        "    conn.close()\n",
+        "\n",
+        "# Example: Saving customer feedback\n",
+        "saveFeedbackHive(\"customer1\", \"Excellent service! Very satisfied.\")\n",
+        "saveFeedbackHive(\"customer2\", \"Service needs improvement. Not satisfied.\")\n"
+      ]
+    }
+  ]
+}
